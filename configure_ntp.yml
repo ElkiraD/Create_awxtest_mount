@@ -1,0 +1,36 @@
+---
+- name: Configure Chrony NTP Service
+  hosts: all
+  become: true
+  vars:
+    ntp_servers:
+      - "0.rhel.pool.ntp.org"
+      - "1.rhel.pool.ntp.org"
+      - "2.rhel.pool.ntp.org"
+
+  tasks:
+    - name: Ensure chrony package is installed
+      ansible.builtin.package:
+        name: chrony
+        state: present
+
+    - name: Ensure chronyd service is enabled and running
+      ansible.builtin.service:
+        name: chronyd
+        state: started
+        enabled: true
+
+    - name: Configure NTP servers in chrony.conf
+      ansible.builtin.lineinfile:
+        path: /etc/chrony.conf
+        regexp: '^pool|^server'
+        line: "server {{ item }} iburst"
+        state: present
+      loop: "{{ ntp_servers }}"
+      notify: Restart chronyd
+
+  handlers:
+    - name: Restart chronyd
+      ansible.builtin.service:
+        name: chronyd
+        state: restarted
