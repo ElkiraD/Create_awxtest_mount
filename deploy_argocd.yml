@@ -1,0 +1,63 @@
+---
+- name: Deploy ArgoCD with Static NFS PV Binding
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    argocd_namespace: "argocd"
+    pv_name: "nfs-pv-argocd"
+
+  tasks:
+    - name: Create argocd namespace
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: "{{ argocd_namespace }}"
+
+    - name: Create PVC explicitly bound to nfs-pv-argocd
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: PersistentVolumeClaim
+          metadata:
+            name: argocd-pvc
+            namespace: "{{ argocd_namespace }}"
+          spec:
+            accessModes:
+              - ReadWriteMany
+            resources:
+              requests:
+                storage: 8Gi
+            volumeName: "{{ pv_name }}"
+            storageClassName: ""  # Empty string ensures binding to the static PV
+
+    - name: Download and apply official ArgoCD manifests
+      kubernetes.core.k8s:
+        state: present
+        namespace: "{{ argocd_namespace }}"
+        src: "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml"
+
+    - name: Expose ArgoCD Server via NodePort
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: argocd-server-nodeport
+            namespace: "{{ argocd_namespace }}"
+          spec:
+            type: NodePort
+            selector:
+              app.kubernetes.io/name: argocd-server
+            ports:
+              - port: 80
+                targetPort: 8080
+                nodePort: 30085
+              - port: 443
+                targetPort: 8080
+                nodePort: 30443
