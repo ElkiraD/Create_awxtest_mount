@@ -1,0 +1,24 @@
+---
+- name: Create System Groups and Users
+  hosts: all
+  become: true
+  vars:
+    target_group: "admin"
+    user_list:
+      - "cybrlogn"
+      - "cybrrcon"
+
+  tasks:
+    - name: Ensure target group exists
+      ansible.builtin.group:
+        name: "{{ target_group }}"
+        state: present
+
+    - name: Create system users and assign to target group
+      ansible.builtin.user:
+        name: "{{ item }}"
+        group: "{{ target_group }}"
+        state: present
+        shell: /bin/bash
+        create_home: true
+      loop: "{{ user_list }}"
