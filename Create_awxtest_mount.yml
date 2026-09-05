@@ -1,0 +1,37 @@
+---
+- name: Create /awxtest LV and mount XFS file system
+  hosts: all
+  become: true
+  vars:
+    vg_name: "rhelvg"
+    lv_name: "awxtest_lv"
+    lv_size: "2M"
+    mount_path: "/awxtest"
+    fs_type: "xfs"
+
+  tasks:
+    - name: Create Logical Volume from Volume Group
+      community.general.lvol:
+        vg: "{{ vg_name }}"
+        lv: "{{ lv_name }}"
+        size: "{{ lv_size }}"
+        state: present
+      register: lv_creation
+
+    - name: Format Logical Volume as XFS
+      community.general.filesystem:
+        fstype: "{{ fs_type }}"
+        dev: "/dev/{{ vg_name }}/{{ lv_name }}"
+
+    - name: Create mount point directory
+      ansible.builtin.file:
+        path: "{{ mount_path }}"
+        state: directory
+        mode: '0755'
+
+    - name: Mount Logical Volume and ensure fstab persistence
+      ansible.posix.mount:
+        path: "{{ mount_path }}"
+        src: "/dev/{{ vg_name }}/{{ lv_name }}"
+        fstype: "{{ fs_type }}"
+        state: mounted
