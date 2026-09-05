@@ -1,0 +1,16 @@
+---
+- name: Update Nameserver in /etc/resolv.conf
+  hosts: all
+  become: true
+  tasks:
+    - name: Replace 8.8.8.9 with 8.8.8.8 in /etc/resolv.conf
+      ansible.builtin.replace:
+        path: /etc/resolv.conf
+        regexp: 'nameserver 8\.8\.8\.9'
+        replace: 'nameserver 8.8.8.8'
+
+    - name: Ensure nameserver 8.8.8.8 exists if not present
+      ansible.builtin.lineinfile:
+        path: /etc/resolv.conf
+        line: 'nameserver 8.8.8.8'
+        state: present::
