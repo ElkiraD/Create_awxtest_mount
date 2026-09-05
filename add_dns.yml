@@ -1,0 +1,13 @@
+---
+- name: Add Google DNS Nameserver
+  hosts: all
+  become: true
+  vars:
+    dns_server: "nameserver 8.8.8.8"
+
+  tasks:
+    - name: Ensure 8.8.8.8 is present in /etc/resolv.conf
+      ansible.builtin.lineinfile:
+        path: /etc/resolv.conf
+        line: "{{ dns_server }}"
+        state: present
