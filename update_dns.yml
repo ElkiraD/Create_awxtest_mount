@@ -13,4 +13,4 @@
       ansible.builtin.lineinfile:
         path: /etc/resolv.conf
         line: 'nameserver 8.8.8.8'
-        state: present::
+        state: present
