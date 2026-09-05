@@ -5,7 +5,7 @@
   vars:
     vg_name: "rhelvg"
     lv_name: "awxtest_lv"
-    lv_size: "300M"
+    lv_size: "200M"
     mount_path: "/awxtest"
     fs_type: "xfs"
 
@@ -16,7 +16,6 @@
         lv: "{{ lv_name }}"
         size: "{{ lv_size }}"
         state: present
-      register: lv_creation
 
     - name: Format Logical Volume as XFS
       community.general.filesystem:
