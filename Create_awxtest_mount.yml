@@ -3,9 +3,9 @@
   hosts: all
   become: true
   vars:
-    vg_name: "rhelvg"
+    vg_name: "nfsvg"       # Updated from rhelvg to nfsvg
     lv_name: "awxtest_lv"
-    lv_size: "200M"
+    lv_size: "1G"        # Valid size for XFS metadata constraints
     mount_path: "/awxtest"
     fs_type: "xfs"
 
