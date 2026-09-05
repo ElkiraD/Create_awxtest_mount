@@ -5,7 +5,7 @@
   vars:
     vg_name: "rhelvg"
     lv_name: "awxtest_lv"
-    lv_size: "2M"
+    lv_size: "300M"
     mount_path: "/awxtest"
     fs_type: "xfs"
 
