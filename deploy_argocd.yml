@@ -33,7 +33,7 @@
               requests:
                 storage: 8Gi
             volumeName: "{{ pv_name }}"
-            storageClassName: ""  # Empty string ensures binding to the static PV
+            storageClassName: ""
 
     - name: Download and apply official ArgoCD manifests
       kubernetes.core.k8s:
@@ -55,9 +55,11 @@
             selector:
               app.kubernetes.io/name: argocd-server
             ports:
-              - port: 80
+              - name: http           # Fixed: Required port name
+                port: 80
                 targetPort: 8080
                 nodePort: 30085
-              - port: 443
+              - name: https          # Fixed: Required port name
+                port: 443
                 targetPort: 8080
                 nodePort: 30443
